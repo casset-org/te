@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Registro de Eventos</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input[type="date"], input[type="time"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button { 
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover { background-color: #45a049; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Registro de Eventos</h1>
+
+  <form id="eventForm">
+    <div class="form-group">
+      <label for="eventDate">Data do Evento:</label>
+      <input type="date" id="eventDate" name="eventDate" required>
+    </div>
+
+    <div class="form-group">
+      <label for="eventTime">Hora da Atividade:</label>
+      <input type="time" id="eventTime" name="eventTime">
+    </div>
+
+    <div class="form-group">
+      <label for="eventType">Tipo de Evento:</label>
+      <select id="eventType" name="eventType" required onchange="toggleEventFields()">
+        <option value="">Selecione o Tipo</option>
+        <option value="holiday">Ponto Facultativo</option>
+        <option value="makeup">Reposição</option>
+        <option value="activity">Atividade Extracurricular</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="schoolName">Nome da Escola:</label>
+      <input type="text" id="schoolName" name="schoolName" required>
+    </div>
+
+    <!-- Fields for Ponto Facultativo (holiday) -->
+    <div id="holidayFields" class="hidden">
+      <div class="form-group">
+        <label for="holidayReason">Motivo do Ponto Facultativo:</label>
+        <textarea id="holidayReason" name="holidayReason" rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Fields for Reposição (makeup) -->
+    <div id="makeupFields" class="hidden">
+      <div class="form-group">
+        <label for="makeupReason">Motivo da Reposição:</label>
+        <textarea id="makeupReason" name="makeupReason" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="busCount">Quantidade de Ônibus Demandados:</label>
+        <input type="number" id="busCount" name="busCount" min="0">
+      </div>
+    </div>
+
+    <!-- Fields for Atividade Extracurricular (activity) -->
+    <div id="activityFields" class="hidden">
+      <div class="form-group">
+        <label for="activityDestination">Destino da Atividade:</label>
+        <input type="text" id="activityDestination" name="activityDestination">
+      </div>
+      <div class="form-group">
+        <label for="studentCount">Quantidade de Alunos Beneficiados:</label>
+        <input type="number" id="studentCount" name="studentCount" min="0">
+      </div>
+      <div class="form-group">
+        <label for="activityDescription">Descrição da Atividade:</label>
+        <textarea id="activityDescription" name="activityDescription" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="itineraryLink">Link do Itinerário (Google Maps):</label>
+        <input type="url" id="itineraryLink" name="itineraryLink">
+      </div>
+    </div>
+
+    <button type="submit">Registrar Evento</button>
+  </form>
+
+  <script>
+    function toggleEventFields() {
+      const eventType = document.getElementById('eventType').value;
+      document.getElementById('holidayFields').classList.add('hidden');
+      document.getElementById('makeupFields').classList.add('hidden');
+      document.getElementById('activityFields').classList.add('hidden');
+
+      if (eventType === 'holiday') {
+        document.getElementById('holidayFields').classList.remove('hidden');
+      } else if (eventType === 'makeup') {
+        document.getElementById('makeupFields').classList.remove('hidden');
+      } else if (eventType === 'activity') {
+        document.getElementById('activityFields').classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('eventForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = {
+        eventDate: form.eventDate.value,
+        eventTime: form.eventTime.value,
+        eventType: form.eventType.value,
+        schoolName: form.schoolName.value,
+      };
+
+      // Add specific fields based on event type
+      if (formData.eventType === 'holiday') {
+        formData.holidayReason = form.holidayReason.value;
+      } else if (formData.eventType === 'makeup') {
+        formData.makeupReason = form.makeupReason.value;
+        formData.busCount = form.busCount.value;
+      } else if (formData.eventType === 'activity') {
+        formData.activityDestination = form.activityDestination.value;
+        formData.studentCount = form.studentCount.value;
+        formData.activityDescription = form.activityDescription.value;
+        formData.itineraryLink = form.itineraryLink.value;
+      }
+
+      // Here you would typically call a Google Apps Script function
+      // For example: google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).recordEvent(formData.eventType, formData);
+      
+      console.log('Form Data Submitted:', formData);
+      alert('Formulário enviado! Verifique o console para os dados.');
+      // In a real scenario, you'd handle the response from the server-side function
+    });
+
+    // Initial call to set visibility based on default selection (if any)
+    toggleEventFields();
+  </script>
+</body>
+</html>

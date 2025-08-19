@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <title>Dashboard Avançado - SIG-TE</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Variáveis CSS para consistência */
+        :root {
+            --primary-500: #007bff;
+            --primary-600: #0056b3;
+            --secondary-50: #f8f9fa;
+            --secondary-100: #e9ecef;
+            --secondary-200: #dee2e6;
+            --secondary-300: #ced4da;
+            --secondary-400: #adb5bd;
+            --secondary-500: #6c757d;
+            --secondary-600: #495057;
+            --secondary-700: #343a40;
+            --secondary-800: #212529;
+            --secondary-900: #1a1d20;
+            --error-50: #f8d7da;
+            --error-200: #f5c6cb;
+            --error-700: #721c24;
+            --gradient-primary: linear-gradient(to right, #007bff, #0056b3);
+            --gradient-secondary: linear-gradient(to right, #343a40, #212529);
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition-fast: 0.15s ease-in-out;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--secondary-50);
+            color: var(--secondary-800);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            padding: var(--space-6);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-8);
+            padding: var(--space-6);
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            color: white;
+        }
+
+        .dashboard-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: var(--space-2) 0 0 0;
+        }
+
+        .dashboard-controls {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .dashboard-tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+            border-bottom: 1px solid var(--secondary-200);
+        }
+
+        .tab-btn {
+            padding: var(--space-3) var(--space-6);
+            border: none;
+            background: transparent;
+            color: var(--secondary-600);
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-600);
+            border-bottom-color: var(--primary-600);
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-500);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.125rem;
+            color: var(--secondary-500);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--secondary-200);
+            border-top: 4px solid var(--primary-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: var(--space-3);
+        }
+
+        .error-message {
+            background: var(--error-50);
+            border: 1px solid var(--error-200);
+            color: var(--error-700);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        .quick-action {
+            background: var(--secondary-50);
+            border: 1px solid var(--secondary-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-300);
+        }
+
+        .quick-action-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-2);
+            color: var(--primary-500);
+        }
+
+        .quick-action-title {
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+            color: var(--secondary-800);
+        }
+
+        .quick-action-description {
+            font-size: 0.875rem;
+            color: var(--secondary-600);
+        }
+
+        .export-options {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-4);
+        }
+
+        .export-btn {
+            background: var(--secondary-100);
+            border: 1px solid var(--secondary-300);
+            color: var(--secondary-700);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+        }
+
+        .export-btn:hover {
+            background: var(--secondary-200);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        [data-theme="dark"] .dashboard-header {
+            background: var(--gradient-secondary);
+        }
+
+        [data-theme="dark"] .quick-action {
+            background: var(--secondary-900);
+            border-color: var(--secondary-700);
+        }
+
+        [data-theme="dark"] .quick-action-title {
+            color: var(--secondary-200);
+        }
+
+        [data-theme="dark"] .tab-btn {
+            color: var(--secondary-400);
+        }
+
+        [data-theme="dark"] .tab-btn.active {
+            color: var(--primary-400);
+            border-bottom-color: var(--primary-400);
+        }
+
+        [data-theme="dark"] .dashboard-tabs {
+            border-bottom-color: var(--secondary-700);
+        }
+
+        /* Specific styles for analytics and alerts */
+        .analytics-container, .alerts-container {
+            background-color: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .analytics-card {
+            background: var(--secondary-50);
+            border: 1px solid var(--secondary-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+        }
+
+        .analytics-card h4 {
+            margin-top: 0;
+            color: var(--primary-600);
+        }
+
+        .trend-info p, .performance-info p {
+            margin: var(--space-1) 0;
+            font-size: 0.95rem;
+        }
+
+        .trend-up { color: #28a745; font-weight: 600; }
+        .trend-down { color: #dc3545; font-weight: 600; }
+        .trend-stable { color: #6c757d; }
+
+        .charts-section {
+            margin-top: var(--space-8);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .chart-container {
+            background: var(--secondary-50);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--secondary-200);
+        }
+
+        .alerts-list {
+            display: grid;
+            gap: var(--space-3);
+        }
+
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            border: 1px solid;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-content h5 {
+            margin: 0 0 var(--space-1) 0;
+            font-size: 1rem;
+        }
+
+        .alert-content p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .alert-critical {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .info-message {
+            background: #e2f0cb;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .report-card {
+            background: var(--secondary-50);
+            border: 1px solid var(--secondary-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-300);
+        }
+
+        .report-card h4 {
+            margin: 0 0 var(--space-2) 0;
+            color: var(--secondary-800);
+            font-size: 1.125rem;
+        }
+
+        .report-card p {
+            margin: 0 0 var(--space-4) 0;
+            color: var(--secondary-600);
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            color: #212529;
+            text-align: center;
+            vertical-align: middle;
+            user-select: none;
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: var(--primary-500);
+            border-color: var(--primary-500);
+        }
+
+        .btn-primary:hover {
+            color: #fff;
+            background-color: var(--primary-600);
+            border-color: var(--primary-600);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
+
+        [data-theme="dark"] .report-card {
+            background: var(--secondary-900);
+            border-color: var(--secondary-700);
+        }
+
+        [data-theme="dark"] .report-card h4 {
+            color: var(--secondary-200);
+        }
+
+        [data-theme="dark"] .analytics-container, [data-theme="dark"] .alerts-container {
+            background-color: var(--secondary-800);
+        }
+
+        [data-theme="dark"] .analytics-card, [data-theme="dark"] .chart-container {
+            background: var(--secondary-900);
+            border-color: var(--secondary-700);
+        }
+
+        [data-theme="dark"] .analytics-card h4 {
+            color: var(--primary-400);
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--secondary-900);
+            color: var(--secondary-100);
+        }
+
+        [data-theme="dark"] .info-message {
+            background: #1a362a;
+            border-color: #28a745;
+            color: #c3e6cb;
+        }
+
+        [data-theme="dark"] .alert-critical {
+            background-color: #4e0f14;
+            border-color: #721c24;
+            color: #f8d7da;
+        }
+
+        [data-theme="dark"] .alert-warning {
+            background-color: #5e4d00;
+            border-color: #856404;
+            color: #fff3cd;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background-color: #0a3c45;
+            border-color: #0c5460;
+            color: #d1ecf1;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header do Dashboard -->
+        <div class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">Dashboard Avançado</h1>
+                <p class="dashboard-subtitle">Visão completa e análises em tempo real do SIG-TE</p>
+            </div>
+            <div class="dashboard-controls">
+                <button class="control-btn" onclick="refreshDashboard()">
+                    <span>🔄</span> Atualizar
+                </button>
+                <button class="control-btn" onclick="toggleAutoRefresh()">
+                    <span id="auto-refresh-icon">⏸️</span> <span id="auto-refresh-text">Auto-refresh</span>
+                </button>
+                <button class="control-btn" onclick="exportDashboard()">
+                    <span>📊</span> Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="quick-actions">
+            <div class="quick-action" onclick="App.UI.showForm('alunos')">
+                <div class="quick-action-icon">👥</div>
+                <div class="quick-action-title">Cadastrar Aluno</div>
+                <div class="quick-action-description">Adicionar novo aluno ao sistema</div>
+            </div>
+            <div class="quick-action" onclick="App.UI.showForm('frequencia')">
+                <div class="quick-action-icon">📋</div>
+                <div class="quick-action-title">Registrar Frequência</div>
+                <div class="quick-action-description">Marcar presença dos alunos</div>
+            </div>
+            <div class="quick-action" onclick="App.UI.showForm('rotas')">
+                <div class="quick-action-icon">🚌</div>
+                <div class="quick-action-title">Gerenciar Rotas</div>
+                <div class="quick-action-description">Configurar rotas e capacidades</div>
+            </div>
+            <div class="quick-action" onclick="generateRouteAnalysis()">
+                <div class="quick-action-icon">📈</div>
+                <div class="quick-action-title">Análise de Rotas</div>
+                <div class="quick-action-description">Relatório detalhado das rotas</div>
+            </div>
+        </div>
+
+        <!-- Abas do Dashboard -->
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" onclick="showTab('overview')">Visão Geral</button>
+            <button class="tab-btn" onclick="showTab('analytics')">Análises</button>
+            <button class="tab-btn" onclick="showTab('reports')">Relatórios</button>
+            <button class="tab-btn" onclick="showTab('alerts')">Alertas</button>
+        </div>
+
+        <!-- Conteúdo das Abas -->
+        <div id="overview-tab" class="tab-content active">
+            <div id="dashboard-overview">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    Carregando dados do dashboard...
+                </div>
+            </div>
+        </div>
+
+        <div id="analytics-tab" class="tab-content">
+            <div id="dashboard-analytics">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    Carregando análises...
+                </div>
+            </div>
+        </div>
+
+        <div id="reports-tab" class="tab-content">
+            <div id="dashboard-reports">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    Carregando relatórios...
+                </div>
+            </div>
+        </div>
+
+        <div id="alerts-tab" class="tab-content">
+            <div id="dashboard-alerts">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    Carregando alertas...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = true;
+        let currentChartInstances = {}; // To store Chart.js instances
+
+        // Inicializar dashboard quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardContent();
+            startAutoRefresh();
+        });
+
+        function showTab(tabName) {
+            // Ocultar todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Mostrar aba selecionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Carregar conteúdo específico da aba
+            loadTabContent(tabName);
+        }
+
+        function loadDashboardContent() {
+            const overviewDiv = document.getElementById('dashboard-overview');
+            const analyticsDiv = document.getElementById('dashboard-analytics');
+            const reportsDiv = document.getElementById('dashboard-reports');
+            const alertsDiv = document.getElementById('dashboard-alerts');
+
+            overviewDiv.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Carregando dados do dashboard...</div>';
+            analyticsDiv.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Carregando análises...</div>';
+            reportsDiv.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Carregando relatórios...</div>';
+            alertsDiv.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Carregando alertas...</div>';
+
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    if (response.success) {
+                        overviewDiv.innerHTML = response.html.overview;
+                        analyticsDiv.innerHTML = response.html.analytics;
+                        reportsDiv.innerHTML = response.html.reports;
+                        alertsDiv.innerHTML = response.html.alerts;
+                        renderCharts(response.chartData);
+                    } else {
+                        overviewDiv.innerHTML = `<div class="error-message">${response.message}</div>`;
+                        analyticsDiv.innerHTML = `<div class="error-message">${response.message}</div>`;
+                        reportsDiv.innerHTML = `<div class="error-message">${response.message}</div>`;
+                        alertsDiv.innerHTML = `<div class="error-message">${response.message}</div>`;
+                        App.UI.showToast('Erro ao carregar dashboard: ' + response.message, 'error');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    const errorMessage = `Erro ao carregar dashboard: ${error.message}`; 
+                    overviewDiv.innerHTML = `<div class="error-message">${errorMessage}</div>`;
+                    analyticsDiv.innerHTML = `<div class="error-message">${errorMessage}</div>`;
+                    reportsDiv.innerHTML = `<div class="error-message">${errorMessage}</div>`;
+                    alertsDiv.innerHTML = `<div class="error-message">${errorMessage}</div>`;
+                    App.UI.showToast(errorMessage, 'error');
+                })
+                .generateAdvancedDashboardHTML(); // Certifique-se que está usando esta função
+        }
+
+        function loadTabContent(tabName) {
+            // Content is already loaded by loadDashboardContent, just ensure charts are rendered if it's analytics
+            if (tabName === 'analytics') {
+                // Re-render charts if tab is switched to analytics and data is available
+                // This assumes dashboardData is globally available or re-fetched
+                // For simplicity, we'll re-call loadDashboardContent which re-renders all.
+                // A more optimized approach would be to store chartData and only re-render charts.
+                loadDashboardContent(); 
+            }
+        }
+
+        function renderCharts(chartData) {
+            // Destroy existing chart instances to prevent duplicates
+            for (const chartId in currentChartInstances) {
+                if (currentChartInstances[chartId]) {
+                    currentChartInstances[chartId].destroy();
+                }
+            }
+            currentChartInstances = {};
+
+            if (chartData.frequency && chartData.frequency.labels.length > 0) {
+                const ctx = document.getElementById('frequencyChart');
+                if (ctx) {
+                    currentChartInstances.frequencyChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.frequency.labels,
+                            datasets: [{
+                                label: 'Registros de Frequência',
+                                data: chartData.frequency.data,
+                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Tendência de Registros - Últimos 7 Dias'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            if (chartData.occupancy && chartData.occupancy.labels.length > 0) {
+                const ctx = document.getElementById('occupancyChart');
+                if (ctx) {
+                    currentChartInstances.occupancyChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: chartData.occupancy.labels,
+                            datasets: [{
+                                label: 'Percentual de Ocupação',
+                                data: chartData.occupancy.data,
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Ocupação das Rotas'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: {
+                                        display: true,
+                                        text: 'Ocupação (%)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            if (chartData.distribution && chartData.distribution.labels.length > 0) {
+                const ctx = document.getElementById('shiftDistributionChart');
+                if (ctx) {
+                    currentChartInstances.shiftDistributionChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: chartData.distribution.labels,
+                            datasets: [{
+                                data: chartData.distribution.data,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.8)',
+                                    'rgba(54, 162, 235, 0.8)',
+                                    'rgba(255, 206, 86, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição por Turno'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function refreshDashboard() {
+            App.UI.showToast('Atualizando dashboard...', 'info');
+            loadDashboardContent();
+        }
+
+        function toggleAutoRefresh() {
+            const icon = document.getElementById('auto-refresh-icon');
+            const text = document.getElementById('auto-refresh-text');
+            
+            if (isAutoRefreshEnabled) {
+                stopAutoRefresh();
+                icon.textContent = '▶️';
+                text.textContent = 'Iniciar Auto-refresh';
+                App.UI.showToast('Auto-refresh pausado', 'info');
+            } else {
+                startAutoRefresh();
+                icon.textContent = '⏸️';
+                text.textContent = 'Pausar Auto-refresh';
+                App.UI.showToast('Auto-refresh ativado', 'success');
+            }
+            
+            isAutoRefreshEnabled = !isAutoRefreshEnabled;
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            autoRefreshInterval = setInterval(() => {
+                if (isAutoRefreshEnabled) {
+                    loadDashboardContent();
+                }
+            }, 30000); // Atualizar a cada 30 segundos
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        function generateRouteAnalysis() {
+            const reportOutput = document.getElementById('report-output');
+            reportOutput.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Gerando análise de rotas...</div>';
+            
+            google.script.run
+                .withSuccessHandler(function(html) {
+                    reportOutput.innerHTML = html;
+                    // Mudar para a aba de relatórios
+                    showTab('reports');
+                    App.UI.showToast('Análise de rotas gerada com sucesso!', 'success');
+                })
+                .withFailureHandler(function(error) {
+                    reportOutput.innerHTML = `<div class="error-message">Erro ao gerar análise: ${error.message}</div>`;
+                    App.UI.showToast('Erro ao gerar análise: ' + error.message, 'error');
+                })
+                .generateReport('route_occupancy'); // Assuming this is the route analysis report
+        }
+
+        function exportDashboard() {
+            App.UI.showToast('Funcionalidade de exportação em desenvolvimento', 'info');
+        }
+
+        function exportReport(format) {
+            App.UI.showToast(`Exportando relatório em formato ${format.toUpperCase()}...`, 'info');
+            // Implementar exportação
+        }
+
+        function dismissAlert(alertId) {
+            App.UI.showToast('Alerta dispensado', 'success');
+            // Implementar lógica para dispensar alerta
+        }
+
+        // Global App object for UI interactions (mocked if not present)
+        if (typeof App === 'undefined') {
+            window.App = {
+                UI: {
+                    showToast: function(message, type) { console.log(`Toast (${type}): ${message}`); },
+                    showForm: function(formName) { console.log(`Showing form: ${formName}`); }
+                },
+                Dashboard: {
+                    generateReport: function(type) { console.log(`Generating report: ${type}`); }
+                }
+            };
+        }
+
+        // Cleanup ao sair da página
+        window.addEventListener('beforeunload', function() {
+            stopAutoRefresh();
+        });
+    </script>
+</body>
+</html>

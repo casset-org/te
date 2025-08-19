@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <title>Registro de Incidente</title>
+    <style>
+      body { font-family: sans-serif; margin: 20px; }
+      .form-group { margin-bottom: 15px; }
+      label { display: block; margin-bottom: 5px; font-weight: bold; }
+      input, select, textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button { 
+        background-color: #3b82f6;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover { background-color: #2563eb; }
+      #msg { margin-top: 10px; color: green; }
+      .hidden { display: none; }
+      hr { margin: 30px 0; }
+    </style>
+    <script>
+      function submitForm() {
+        const date = document.getElementById('incidentDate').value;
+        const type = document.getElementById('incidentType').value;
+        const description = document.getElementById('description').value;
+        const involved = document.getElementById('involved').value;
+
+        google.script.run
+          .withSuccessHandler(function(){
+            document.getElementById('msg').innerText = 'Incidente registrado com sucesso!';
+            updateDashboard();
+            document.getElementById('incidentForm').reset();
+          })
+          .registerIncident(date, type, description, involved);
+        return false;
+      }
+      function updateDashboard() {
+        google.script.run
+          .withSuccessHandler(function(html){
+            document.getElementById('dashboard').innerHTML = html;
+          })
+          .getDashboard();
+      }
+      window.onload = updateDashboard;
+    </script>
+  </head>
+  <body>
+    <h2>Registro de Incidente</h2>
+    <form id="incidentForm" onsubmit="return submitForm();">
+      <div class="form-group">
+        <label for="incidentDate">Data:</label>
+        <input type="date" id="incidentDate" required>
+      </div>
+      <div class="form-group">
+        <label for="incidentType">Tipo:</label>
+        <select id="incidentType">
+          <option value="Delay">Atraso</option>
+          <option value="Absence">Ausência</option>
+          <option value="Incident">Incidente</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="description">Descrição:</label>
+        <textarea id="description" required rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="involved">Envolvidos (nomes):</label>
+        <input type="text" id="involved" placeholder="Nome(s) do(s) aluno(s)">
+      </div>
+      <button type="submit">Registrar</button>
+    </form>
+    <div id="msg"></div>
+    <hr>
+    <div id="dashboard"></div>
+  </body>
+</html>

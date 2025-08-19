@@ -1,0 +1,601 @@
+<div class="form-container">
+    <div class="panel-header">
+        <h2 class="panel-title">Registrar Eventos Escolares</h2>
+        <p class="panel-description">Registre pontos facultativos, reposições e atividades extracurriculares</p>
+    </div>
+
+    <!-- Event Type Selection -->
+    <div class="form-section">
+        <h3 class="section-title">Selecione o Tipo de Evento</h3>
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <select id="event-type-select" class="form-select">
+                    <option value="" disabled selected>Selecione um tipo de evento</option>
+                    <option value="holiday">Ponto Facultativo</option>
+                    <option value="makeup">Reposição de Aula</option>
+                    <option value="activity">Atividade Extracurricular</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Holiday/Facultative Point Section -->
+    <div id="holiday-form-section" class="form-section hidden">
+        <h3 class="section-title">Ponto Facultativo</h3>
+        
+        <form id="holiday-form" class="event-form">
+            <!-- Secretary Validation Section -->
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Validação do Secretário</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="holiday-password" class="form-label">Senha Padrão (Secretário)</label>
+                        <input 
+                            type="password" 
+                            id="holiday-password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Digite a senha do secretário"
+                            required
+                        >
+                        <small class="form-help">Senha: admin123</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="holiday-secretary-phone" class="form-label">Seu Celular com DDD</label>
+                        <input 
+                            type="tel" 
+                            id="holiday-secretary-phone" 
+                            name="secretaryPhone" 
+                            class="form-input" 
+                            placeholder="61999998888"
+                            pattern="[0-9]{10,13}"
+                            required
+                        >
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="holiday-school" class="form-label">Escola</label>
+                    <select id="holiday-school" name="schoolName" class="form-select" required>
+                        <option value="" disabled selected>Selecione uma escola</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="holiday-date" class="form-label">Data</label>
+                    <input 
+                        type="date" 
+                        id="holiday-date" 
+                        name="holidayDate" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="holiday-reason" class="form-label">Motivo do Ponto Facultativo</label>
+                <textarea 
+                    id="holiday-reason" 
+                    name="reason" 
+                    class="form-textarea" 
+                    placeholder="Descreva o motivo..."
+                    rows="2"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group full-width">
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-icon">📅</span>
+                    <span class="btn-text">Registrar Ponto Facultativo</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Makeup Class Section -->
+    <div id="makeup-form-section" class="form-section hidden">
+        <h3 class="section-title">Reposição de Aula</h3>
+        
+        <form id="makeup-form" class="event-form">
+            <!-- Secretary Validation Section -->
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Validação do Secretário</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="makeup-password" class="form-label">Senha Padrão (Secretário)</label>
+                        <input 
+                            type="password" 
+                            id="makeup-password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Digite a senha do secretário"
+                            required
+                        >
+                        <small class="form-help">Senha: admin123</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="makeup-secretary-phone" class="form-label">Seu Celular com DDD</label>
+                        <input 
+                            type="tel"
+                            id="makeup-secretary-phone"
+                            name="secretaryPhone"
+                            class="form-input"
+                            placeholder="61999998888"
+                            pattern="[0-9]{10,13}"
+                            required
+                        >
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="makeup-school" class="form-label">Escola</label>
+                    <select id="makeup-school" name="schoolName" class="form-select" required>
+                        <option value="" disabled selected>Selecione uma escola</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="makeup-date" class="form-label">Data</label>
+                    <input 
+                        type="date" 
+                        id="makeup-date" 
+                        name="makeupDate" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="makeup-bus-count" class="form-label">Quantidade de Ônibus</label>
+                    <input 
+                        type="number" 
+                        id="makeup-bus-count" 
+                        name="busCount" 
+                        class="form-input" 
+                        placeholder="Ex: 2"
+                        min="1"
+                        max="20"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="makeup-reason" class="form-label">Motivo da Reposição</label>
+                <textarea 
+                    id="makeup-reason" 
+                    name="reason" 
+                    class="form-textarea" 
+                    placeholder="Descreva o motivo..."
+                    rows="2"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group full-width">
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-icon">🚌</span>
+                    <span class="btn-text">Registrar Reposição</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Extracurricular Activity Section -->
+    <div id="activity-form-section" class="form-section hidden">
+        <h3 class="section-title">Atividade Extracurricular</h3>
+        
+        <form id="activity-form-event" class="event-form">
+            <!-- Secretary Validation Section -->
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Validação do Secretário</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="activity-password" class="form-label">Senha Padrão (Secretário)</label>
+                        <input 
+                            type="password" 
+                            id="activity-password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Digite a senha do secretário"
+                            required
+                        >
+                        <small class="form-help">Senha: admin123</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="activity-secretary-phone" class="form-label">Seu Celular com DDD</label>
+                        <input 
+                            type="tel" 
+                            id="activity-secretary-phone" 
+                            name="secretaryPhone" 
+                            class="form-input" 
+                            placeholder="61999998888"
+                            pattern="[0-9]{10,13}"
+                            required
+                        >
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="activity-date-event" class="form-label">Data</label>
+                    <input 
+                        type="date" 
+                        id="activity-date-event" 
+                        name="activityDate" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="activity-school-event" class="form-label">Escola</label>
+                    <select id="activity-school-event" name="activitySchool" class="form-select" required>
+                        <option value="" disabled selected>Selecione uma escola</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="activity-destination" class="form-label">Destino</label>
+                    <input 
+                        type="text" 
+                        id="activity-destination" 
+                        name="destination" 
+                        class="form-input" 
+                        placeholder="Ex: Museu Nacional, Parque da Cidade"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="activity-student-count" class="form-label">Quantidade de Alunos</label>
+                    <input 
+                        type="number" 
+                        id="activity-student-count" 
+                        name="studentCount" 
+                        class="form-input" 
+                        placeholder="Ex: 45"
+                        min="1"
+                        max="500"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="activity-description" class="form-label">Descrição da Atividade</label>
+                <textarea 
+                    id="activity-description" 
+                    name="description" 
+                    class="form-textarea" 
+                    placeholder="Descreva a atividade extracurricular, objetivos e detalhes importantes..."
+                    rows="4"
+                    required
+                ></textarea>
+                <small class="form-help">Mínimo de 10 caracteres</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="activity-itinerary-link" class="form-label">Link para o Itinerário (Google Maps)</label>
+                <input 
+                    type="url" 
+                    id="activity-itinerary-link" 
+                    name="itineraryLink" 
+                    class="form-input" 
+                    placeholder="https://maps.app.goo.gl/exemplo"
+                >
+                <small class="form-help">Link curto do Google Maps para o itinerário.</small>
+            </div>
+
+            <div class="form-group full-width">
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-icon">🎯</span>
+                    <span class="btn-text">Registrar Atividade</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Events Calendar Section -->
+    <div class="form-section">
+        <h3 class="section-title">Próximos Eventos</h3>
+        
+        <div class="events-filter">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="events-filter-school" class="form-label">Filtrar por Escola</label>
+                    <select id="events-filter-school" class="form-select">
+                        <option value="" selected>Todas as escolas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="events-filter-type" class="form-label">Tipo de Evento</label>
+                    <select id="events-filter-type" class="form-select">
+                        <option value="" selected>Todos os tipos</option>
+                        <option value="holiday">Ponto Facultativo</option>
+                        <option value="makeup">Reposição</option>
+                        <option value="activity">Atividade Extracurricular</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="events-list" class="events-list">
+            <div class="list-placeholder">
+                <p>Carregando próximos eventos...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Event Forms Specific Styles */
+.event-form {
+    background: var(--secondary-50);
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+}
+
+[data-theme="dark"] .event-form {
+    background: var(--secondary-900);
+    border-color: var(--secondary-700);
+}
+
+.events-filter {
+    background: var(--secondary-100);
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+[data-theme="dark"] .events-filter {
+    background: var(--secondary-800);
+    border-color: var(--secondary-700);
+}
+
+.events-list {
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    background: var(--secondary-50);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+[data-theme="dark"] .events-list {
+    background: var(--secondary-900);
+    border-color: var(--secondary-700);
+}
+
+.event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--secondary-200);
+    transition: background-color var(--transition-fast);
+}
+
+.event-item:hover {
+    background: var(--secondary-100);
+}
+
+.event-item:last-child {
+    border-bottom: none;
+}
+
+[data-theme="dark"] .event-item {
+    border-bottom-color: var(--secondary-700);
+}
+
+[data-theme="dark"] .event-item:hover {
+    background: var(--secondary-800);
+}
+
+.event-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.event-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.event-type-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.event-type-badge.holiday {
+    background: var(--info-500);
+    color: white;
+}
+
+.event-type-badge.makeup {
+    background: var(--warning-500);
+    color: white;
+}
+
+.event-type-badge.activity {
+    background: var(--success-500);
+    color: white;
+}
+
+.event-title {
+    font-weight: 600;
+    color: var(--secondary-900);
+    font-size: 1.125rem;
+}
+
+[data-theme="dark"] .event-title {
+    color: var(--secondary-100);
+}
+
+.event-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+}
+
+[data-theme="dark"] .event-details {
+    color: var(--secondary-400);
+}
+
+.event-detail {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.event-detail-label {
+    font-weight: 600;
+    color: var(--secondary-900);
+}
+
+[data-theme="dark"] .event-detail-label {
+    color: var(--secondary-100);
+}
+
+.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--secondary-100);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--secondary-200);
+    min-width: 80px;
+}
+
+[data-theme="dark"] .event-date {
+    background: var(--secondary-800);
+    border-color: var(--secondary-700);
+}
+
+.event-date-day {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-500);
+    line-height: 1;
+}
+
+.event-date-month {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--secondary-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+[data-theme="dark"] .event-date-month {
+    color: var(--secondary-400);
+}
+
+.event-date-year {
+    font-size: 0.75rem;
+    color: var(--secondary-500);
+}
+
+[data-theme="dark"] .event-date-year {
+    color: var(--secondary-500);
+}
+
+.event-description {
+    margin-top: var(--space-2);
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+    line-height: 1.4;
+}
+
+[data-theme="dark"] .event-description {
+    color: var(--secondary-400);
+}
+
+.no-events {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--secondary-500);
+    text-align: center;
+}
+
+.no-events-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+    opacity: 0.5;
+}
+
+.no-events-text {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+}
+
+.no-events-subtext {
+    font-size: 0.875rem;
+    color: var(--secondary-500);
+}
+
+.event-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-left: var(--space-4);
+}
+
+.event-action-btn {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.event-action-btn.edit {
+    background: var(--warning-500);
+    color: white;
+}
+
+.event-action-btn.edit:hover {
+    background: var(--warning-700);
+    transform: translateY(-1px);
+}
+
+.event-action-btn.delete {
+    background: var(--error-500);
+    color: white;
+}
+
+.event-action-btn.delete:hover {
+    background: var(--error-700);
+    transform: translateY(-1px);
+}
+
+.hidden {
+    display: none !important;
+}
+</style>

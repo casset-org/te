@@ -1,0 +1,380 @@
+<div class="form-container">
+    <div class="panel-header">
+        <h2 class="panel-title">Lançamento de Frequência</h2>
+        <p class="panel-description">Registre a presença e ausência dos alunos nas rotas</p>
+    </div>
+
+    <form id="attendance-form-main" class="form-section">
+        <!-- Monitor Validation Section -->
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Validação do Monitor</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="attendance-password-main" class="form-label">Senha Padrão (Monitor)</label>
+                    <input 
+                        type="password"
+                        id="attendance-password-main"
+                        name="password"
+                        class="form-input"
+                        placeholder="Digite a senha do monitor"
+                        required
+                    >
+                    <small class="form-help">Senha: sedftop26</small>
+                </div>
+                <div class="form-group has-validation">
+                    <label for="attendance-monitor-phone-main" class="form-label">Seu Celular com DDD</label>
+                    <input 
+                        type="tel"
+                        id="attendance-monitor-phone-main"
+                        name="monitorPhone"
+                        class="form-input"
+                        placeholder="61999998888"
+                        pattern="[0-9]{10,13}"
+                        required
+                    >
+                    <div class="error-message" id="error-attendance-monitor-phone-main"></div>
+                    <small class="form-help">Apenas números. Ex: 61999998888</small>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Route and Date Selection -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="attendance-route-main" class="form-label">Rota / Itinerário</label>
+                <select id="attendance-route-main" name="routeId" class="form-select" required>
+                    <option value="" disabled selected>Valide suas credenciais para ver as rotas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="attendance-date-main" class="form-label">Data</label>
+                <input 
+                    type="date" 
+                    id="attendance-date-main" 
+                    name="date" 
+                    class="form-input" 
+                    required
+                >
+            </div>
+        </div>
+
+        <!-- Monitor Information (Read-only) -->
+        <div class="form-group">
+            <label for="attendance-monitor-name" class="form-label">Monitor(a)</label>
+            <input 
+                type="text" 
+                id="attendance-monitor-name" 
+                name="monitorName" 
+                class="form-input" 
+                placeholder="Nome do monitor será preenchido automaticamente"
+                readonly
+            >
+        </div>
+
+        <!-- Periodo (Ida/Volta) Selection -->
+        <div class="form-group">
+            <label for="attendance-periodo" class="form-label">Período</label>
+            <select id="attendance-periodo" name="periodo" class="form-select" required>
+                <option value="" disabled selected>Selecione o período</option>
+                <option value="Ida">Ida</option>
+                <option value="Volta">Volta</option>
+            </select>
+            <small class="form-help">O período pode ser preenchido automaticamente se já houver registro de Ida.</small>
+        </div>
+
+        <!-- Students List -->
+        <div class="form-group full-width">
+            <label class="form-label">Lista de Alunos</label>
+            <div id="students-list" class="students-container">
+                <div class="students-placeholder">
+                    <p>Selecione uma rota para ver a lista de alunos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Observations Field -->
+        <div class="form-group full-width">
+            <label for="attendance-observations" class="form-label">Observações</label>
+            <textarea 
+                id="attendance-observations" 
+                name="observations" 
+                class="form-textarea" 
+                placeholder="Observações sobre a frequência..."
+                rows="2"
+            ></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-group full-width">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <span class="btn-icon">📋</span>
+                <span class="btn-text">Registrar Frequência</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Attendance History Section -->
+    <div class="form-section">
+        <h3 class="section-title">Histórico de Frequência</h3>
+        <div id="attendance-history" class="history-container">
+            <div class="history-placeholder">
+                <p>Selecione uma rota para ver o histórico de frequência</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Attendance Form Specific Styles */
+.students-container {
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    background: var(--secondary-50);
+    min-height: 200px;
+}
+
+[data-theme="dark"] .students-container {
+    background: var(--secondary-900);
+    border-color: var(--secondary-700);
+}
+
+.students-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--secondary-500);
+    font-style: italic;
+}
+
+.student-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3);
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    background: var(--secondary-100);
+    margin-bottom: var(--space-2);
+    transition: all var(--transition-fast);
+}
+
+[data-theme="dark"] .student-item {
+    background: var(--secondary-800);
+    border-color: var(--secondary-700);
+}
+
+.student-item:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.student-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.student-name {
+    font-weight: 600;
+    color: var(--secondary-900);
+}
+
+[data-theme="dark"] .student-name {
+    color: var(--secondary-100);
+}
+
+.student-details {
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+}
+
+[data-theme="dark"] .student-details {
+    color: var(--secondary-400);
+}
+
+.attendance-controls {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.attendance-btn {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.attendance-btn.present {
+    background: var(--success-500);
+    color: white;
+}
+
+.attendance-btn.present:hover {
+    background: var(--success-700);
+}
+
+.attendance-btn.absent {
+    background: var(--error-500);
+    color: white;
+}
+
+.attendance-btn.absent:hover {
+    background: var(--error-700);
+}
+
+.attendance-btn.neutral {
+    background: var(--secondary-300);
+    color: var(--secondary-800);
+    border-color: var(--secondary-300);
+}
+
+[data-theme="dark"] .attendance-btn.neutral {
+    background: var(--secondary-700);
+    color: var(--secondary-200);
+    border-color: var(--secondary-700);
+}
+
+.attendance-btn.neutral:hover {
+    background: var(--secondary-400);
+}
+
+.attendance-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    background: var(--secondary-200);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .attendance-summary {
+    background: var(--secondary-800);
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.summary-count {
+    background: var(--primary-500);
+    color: white;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+}
+
+.history-container {
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    background: var(--secondary-50);
+    overflow: hidden;
+}
+
+[data-theme="dark"] .history-container {
+    background: var(--secondary-900);
+    border-color: var(--secondary-700);
+}
+
+.history-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    color: var(--secondary-500);
+    font-style: italic;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--secondary-200);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+[data-theme="dark"] .history-item {
+    border-bottom-color: var(--secondary-700);
+}
+
+.history-date {
+    font-weight: 600;
+    color: var(--secondary-900);
+}
+
+[data-theme="dark"] .history-date {
+    color: var(--secondary-100);
+}
+
+.history-stats {
+    display: flex;
+    gap: var(--space-4);
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+}
+
+[data-theme="dark"] .history-stats {
+    color: var(--secondary-400);
+}
+
+.history-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.stat-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.stat-icon.present {
+    background: var(--success-500);
+}
+
+.stat-icon.absent {
+    background: var(--error-500);
+}
+
+@media (max-width: 768px) {
+    .student-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-4);
+    }
+    
+    .attendance-controls {
+        justify-content: center;
+    }
+    
+    .attendance-summary {
+        flex-direction: column;
+        gap: var(--space-2);
+        text-align: center;
+    }
+    
+    .history-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+    }
+    
+    .history-stats {
+        justify-content: center;
+    }
+}
+</style>

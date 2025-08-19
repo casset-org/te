@@ -1,0 +1,58 @@
+<div class="form-container">
+    <h3 class="section-title">Funções de Backup</h3>
+    <p class="form-help">Crie um backup completo da sua planilha no Google Drive. Isso garante que seus dados estejam seguros.</p>
+    <button id="create-full-backup-btn" class="btn btn-primary">
+        <i class="fas fa-save"></i> Criar Backup Completo Agora
+    </button>
+    <div id="backup-status" style="margin-top: var(--space-4);"></div>
+
+    <h3 class="section-title" style="margin-top: var(--space-8);">Configurações de Tema</h3>
+    <p class="form-help">Alterne entre o tema claro e escuro para uma melhor experiência visual.</p>
+    <button id="theme-toggle-config" class="btn btn-primary">
+        <i class="fas fa-moon"></i> Alternar Tema (Claro/Escuro)
+    </button>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Backup Button Event Listener
+        const createBackupBtn = document.getElementById('create-full-backup-btn');
+        if (createBackupBtn) {
+            createBackupBtn.addEventListener('click', async () => {
+                App.UI.showLoading(true, 'Criando backup completo...');
+                try {
+                    const response = await new Promise((resolve, reject) => {
+                        google.script.run
+                            .withSuccessHandler(resolve)
+                            .withFailureHandler(reject)
+                            .createFullBackup(); // Function to be exposed in Code.gs
+                    });
+
+                    if (response && response.success) {
+                        App.UI.showToast(response.message, 'success');
+                        document.getElementById('backup-status').innerHTML = `<p style="color: var(--success-700);">${response.message} ID: ${response.backupKey}</p>`;
+                    } else {
+                        throw new Error(response?.message || 'Erro desconhecido ao criar backup.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao criar backup:', error);
+                    App.UI.showToast('Erro ao criar backup: ' + error.message, 'error');
+                    document.getElementById('backup-status').innerHTML = `<p style="color: var(--error-700);">Erro: ${error.message}</p>`;
+                } finally {
+                    App.UI.showLoading(false);
+                }
+            });
+        }
+
+        // Theme Toggle Button Event Listener (for this specific form)
+        const themeToggleConfigBtn = document.getElementById('theme-toggle-config');
+        if (themeToggleConfigBtn) {
+            themeToggleConfigBtn.addEventListener('click', App.Events.toggleTheme);
+            // Update icon based on current theme
+            const themeIcon = themeToggleConfigBtn.querySelector('i');
+            if (themeIcon) {
+                themeIcon.className = App.State.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+        }
+    });
+</script>

@@ -1,0 +1,352 @@
+<div class="form-container">
+    <div class="panel-header">
+        <h2 class="panel-title">Gerenciar Rotas</h2>
+        <p class="panel-description">Cadastre e gerencie as rotas de transporte escolar</p>
+    </div>
+
+    <!-- Add Route Section -->
+    <div class="form-section">
+        <h3 class="section-title">Adicionar Nova Rota</h3>
+        
+        <form id="routeForm" onsubmit="return submitRouteForm();">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="idRota">ID da Rota</label>
+                    <input type="text" id="idRota" required>
+                </div>
+                <div class="form-group">
+                    <label for="idOnibus">ID do Ônibus</label>
+                    <input type="text" id="idOnibus" required>
+                </div>
+                <div class="form-group">
+                    <label for="nomeEscola">Nome da Escola</label>
+                    <input type="text" id="nomeEscola" required>
+                </div>
+                <div class="form-group">
+                    <label for="turno">Turno</label>
+                    <select id="turno" required>
+                        <option value="MANHÃ">Manhã</option>
+                        <option value="TARDE">Tarde</option>
+                        <option value="NOITE">Noite</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="itinerario">Itinerário Padrão</label>
+                    <input type="text" id="itinerario">
+                </div>
+                <div class="form-group">
+                    <label for="celularMonitor">Celular do Monitor</label>
+                    <input type="text" id="celularMonitor" maxlength="11" required>
+                </div>
+                <!-- Campos para Dias_da_Semana_1 ... Dias_da_Semana_6 -->
+                <div class="form-group">
+                    <label for="vagasTotais">Vagas Totais no Veículo</label>
+                    <input type="number" id="vagasTotais" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="celularSecretario">Celular do Secretário</label>
+                    <input type="text" id="celularSecretario" maxlength="11">
+                </div>
+            </div>
+            <input type="submit" value="Cadastrar Rota">
+        </form>
+    </div>
+
+    <!-- Route Management Section (List/Edit/Delete) -->
+    <div class="form-section">
+        <h3 class="section-title">Gerenciar Rotas Existentes</h3>
+        
+        <!-- Filters -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="filter-route-school" class="form-label">Filtrar por Escola</label>
+                <select id="filter-route-school" class="form-select">
+                    <option value="" selected>Todas as escolas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filter-route-shift" class="form-label">Filtrar por Turno</label>
+                <select id="filter-route-shift" class="form-select">
+                    <option value="" selected>Todos os turnos</option>
+                    <option value="Manhã">Manhã</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Noite">Noite</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Routes List -->
+        <div id="routes-management-list" class="management-list">
+            <div class="list-placeholder">
+                <p>Carregando lista de rotas...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Specific styles for Route Management Form */
+.checkbox-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--secondary-300);
+    border-radius: var(--radius-md);
+    background: var(--secondary-50);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.checkbox-item:hover {
+    background: var(--secondary-100);
+    border-color: var(--primary-300);
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-500);
+}
+
+.management-list {
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    background: var(--secondary-50);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.list-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--secondary-500);
+    font-style: italic;
+}
+
+.route-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--secondary-200);
+    transition: background-color var(--transition-fast);
+}
+
+.route-management-item:hover {
+    background: var(--secondary-100);
+}
+
+.route-management-item:last-child {
+    border-bottom: none;
+}
+
+.route-management-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.route-management-name {
+    font-weight: 600;
+    color: var(--secondary-900);
+    font-size: 1rem;
+}
+
+.route-management-details {
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.route-management-detail {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.detail-label {
+    font-weight: 500;
+}
+
+.route-management-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.action-btn {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.action-btn.edit {
+    background: var(--warning-500);
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background: var(--warning-700);
+    transform: translateY(-1px);
+}
+
+.action-btn.delete {
+    background: var(--error-500);
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: var(--error-700);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+    .route-management-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-4);
+    }
+    .route-management-details {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    .route-management-actions {
+        justify-content: center;
+    }
+}
+</style>
+    overflow-y: auto;
+}
+
+.list-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--secondary-500);
+    font-style: italic;
+}
+
+.route-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--secondary-200);
+    transition: background-color var(--transition-fast);
+}
+
+.route-management-item:hover {
+    background: var(--secondary-100);
+}
+
+.route-management-item:last-child {
+    border-bottom: none;
+}
+
+.route-management-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.route-management-name {
+    font-weight: 600;
+    color: var(--secondary-900);
+    font-size: 1rem;
+}
+
+.route-management-details {
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.route-management-detail {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.detail-label {
+    font-weight: 500;
+}
+
+.route-management-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.action-btn {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.action-btn.edit {
+    background: var(--warning-500);
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background: var(--warning-700);
+    transform: translateY(-1px);
+}
+
+.action-btn.delete {
+    background: var(--error-500);
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: var(--error-700);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+    .route-management-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-4);
+    }
+    .route-management-details {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    .route-management-actions {
+        justify-content: center;
+    }
+}
+</style>

@@ -1,0 +1,305 @@
+<div class="form-container">
+    <div class="panel-header">
+        <h2 class="panel-title">Gerenciar Monitores</h2>
+        <p class="panel-description">Adicione novos monitores e gerencie os existentes</p>
+    </div>
+
+    <!-- Add Monitor Section -->
+    <div class="form-section">
+        <h3 class="section-title">Adicionar Novo Monitor</h3>
+        
+        <form id="add-monitor-form">
+            <!-- Secretary Validation Section -->
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Validação do Secretário</legend>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="monitor-password" class="form-label">Senha Padrão (Secretário)</label>
+                        <input 
+                            type="password" 
+                            id="monitor-password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Digite a senha do secretário"
+                            required
+                        >
+                        <small class="form-help">Senha: admin123</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="monitor-secretary-phone" class="form-label">Seu Celular com DDD</label>
+                        <input 
+                            type="tel" 
+                            id="monitor-secretary-phone" 
+                            name="secretaryPhone" 
+                            class="form-input" 
+                            placeholder="61999998888"
+                            pattern="[0-9]{10,13}"
+                            required
+                        >
+                        <small class="form-help">Apenas números. Ex: 61999998888</small>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Monitor Information -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="monitor-id" class="form-label">ID do Monitor</label>
+                    <input 
+                        type="text" 
+                        id="monitor-id" 
+                        name="monitorId" 
+                        class="form-input" 
+                        placeholder="Ex: MON001"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="monitor-name" class="form-label">Nome Completo do Monitor</label>
+                    <input 
+                        type="text" 
+                        id="monitor-name" 
+                        name="fullName" 
+                        class="form-input" 
+                        placeholder="Digite o nome completo"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="monitor-celular" class="form-label">Celular do Monitor</label>
+                    <input 
+                        type="tel" 
+                        id="monitor-celular" 
+                        name="monitorPhone" 
+                        class="form-input" 
+                        placeholder="61999998888"
+                        pattern="[0-9]{10,13}"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="monitor-email" class="form-label">Email do Monitor (Opcional)</label>
+                    <input 
+                        type="email" 
+                        id="monitor-email" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="email@exemplo.com"
+                    >
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="monitor-route" class="form-label">Rota Atribuída (Opcional)</label>
+                    <select id="monitor-route" name="assignedRoute" class="form-select">
+                        <option value="" selected>Nenhuma rota atribuída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="monitor-status" class="form-label">Status</label>
+                    <select id="monitor-status" name="status" class="form-select" required>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="monitor-observations" class="form-label">Observações</label>
+                <textarea 
+                    id="monitor-observations" 
+                    name="observations" 
+                    class="form-textarea" 
+                    placeholder="Observações sobre o monitor..."
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group full-width">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <span class="btn-icon">👤</span>
+                    <span class="btn-text">Adicionar Monitor</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Monitor Management Section (List/Edit/Delete) -->
+    <div class="form-section">
+        <h3 class="section-title">Gerenciar Monitores Existentes</h3>
+        
+        <!-- Filters -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="filter-monitor-route" class="form-label">Filtrar por Rota</label>
+                <select id="filter-monitor-route" class="form-select">
+                    <option value="" selected>Todas as rotas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filter-monitor-status" class="form-label">Filtrar por Status</label>
+                <select id="filter-monitor-status" class="form-select">
+                    <option value="" selected>Todos os status</option>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Monitors List -->
+        <div id="monitors-management-list" class="management-list">
+            <div class="list-placeholder">
+                <p>Carregando lista de monitores...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Specific styles for Monitor Management Form */
+/* Reusing .form-container, .panel-header, .form-section, .section-title, .form-grid, .form-group, .form-label, .form-input, .form-select, .form-textarea, .form-help, .full-width, .btn, .btn-primary, .btn-lg, .fieldset, .fieldset-legend from main CSS */
+
+/* Management List Specific Styles (reusing from student/route forms) */
+.management-list {
+    border: 1px solid var(--secondary-200);
+    border-radius: var(--radius-md);
+    background: var(--secondary-50);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+[data-theme="dark"] .management-list {
+    background: var(--secondary-900);
+    border-color: var(--secondary-700);
+}
+
+.list-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--secondary-500);
+    font-style: italic;
+}
+
+.monitor-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--secondary-200);
+    transition: background-color var(--transition-fast);
+}
+
+.monitor-management-item:hover {
+    background: var(--secondary-100);
+}
+
+.monitor-management-item:last-child {
+    border-bottom: none;
+}
+
+[data-theme="dark"] .monitor-management-item {
+    border-bottom-color: var(--secondary-700);
+}
+
+[data-theme="dark"] .monitor-management-item:hover {
+    background: var(--secondary-800);
+}
+
+.monitor-management-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.monitor-management-name {
+    font-weight: 600;
+    color: var(--secondary-900);
+    font-size: 1rem;
+}
+
+[data-theme="dark"] .monitor-management-name {
+    color: var(--secondary-100);
+}
+
+.monitor-management-details {
+    font-size: 0.875rem;
+    color: var(--secondary-600);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+[data-theme="dark"] .monitor-management-details {
+    color: var(--secondary-400);
+}
+
+.monitor-management-detail {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.detail-label {
+    font-weight: 500;
+}
+
+.monitor-management-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.action-btn {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.action-btn.edit {
+    background: var(--warning-500);
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background: var(--warning-700);
+    transform: translateY(-1px);
+}
+
+.action-btn.delete {
+    background: var(--error-500);
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: var(--error-700);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .monitor-management-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-4);
+    }
+    .monitor-management-details {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    .monitor-management-actions {
+        justify-content: center;
+    }
+}
+</style>

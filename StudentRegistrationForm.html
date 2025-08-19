@@ -1,0 +1,304 @@
+<div class="form-container">
+    <div class="panel-header">
+        <h2 class="panel-title">Gerenciar Alunos</h2>
+        <p class="panel-description">Adicione novos alunos e solicite exclusões</p>
+    </div>
+
+    <!-- Add Student Section -->
+    <div class="form-section">
+        <h3 class="section-title">Adicionar Novo Aluno</h3>
+        
+        <form id="studentForm" onsubmit="return submitStudentForm();">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="cpf">CPF</label>
+                    <input type="text" id="cpf" maxlength="11" required>
+                </div>
+                <div class="form-group">
+                    <label for="idRota">ID da Rota</label>
+                    <input type="text" id="idRota" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="acompanhante">Nome do Acompanhante</label>
+                    <input type="text" id="acompanhante">
+                </div>
+                <div class="form-group">
+                    <label for="celular">Celular do Responsável</label>
+                    <input type="text" id="celular" maxlength="11" required>
+                </div>
+                <div class="form-group">
+                    <label for="endereco">Endereço</label>
+                    <input type="text" id="endereco" required>
+                </div>
+            </div>
+            <input type="submit" value="Cadastrar Aluno">
+        </form>
+    </div>
+
+    <!-- Student Management Section -->
+    <div class="form-section">
+        <h3 class="section-title">Solicitar Exclusão de Aluno</h3>
+        
+        <!-- Filters -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="filter-school" class="form-label">Filtrar por Escola</label>
+                <select id="filter-school" class="form-select">
+                    <option value="" selected>Todas as escolas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filter-route" class="form-label">Filtrar por Rota</label>
+                <select id="filter-route" class="form-select">
+                    <option value="" selected>Todas as rotas</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Students List -->
+        <div id="students-management-list" class="management-list">
+            <div class="list-placeholder">
+                <p>Carregando lista de alunos...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+  === FLUXO DE CADASTRO DE ALUNO ===
+  1. Secretário informa senha e telefone para validação.
+  2. Preenche dados do aluno (nome, CPF, escola, rota, acompanhante).
+  3. Escolhe escola, depois rota (dependente da escola).
+  4. Visualiza informações de capacidade da rota.
+  5. Ao submeter, dados são enviados para validação e inclusão.
+
+  === FLUXO DE EXCLUSÃO DE ALUNO ===
+  1. Secretário filtra alunos por escola e/ou rota.
+  2. Solicita exclusão de aluno (cria registro de solicitação).
+  3. Exclusão efetiva é processada posteriormente.
+-->
+
+<style>
+/* Student Management Specific Styles */
+.capacity-info {
+    margin: var(--spacing-lg) 0;
+}
+
+.capacity-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+}
+
+.capacity-card h4 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.capacity-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.capacity-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.capacity-warning {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(217, 119, 6, 0.1);
+    border: 1px solid var(--warning-color);
+    border-radius: var(--radius-sm);
+    color: var(--warning-color);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.warning-icon {
+    font-size: var(--font-size-lg);
+}
+
+.management-list {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.list-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.student-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+}
+
+.student-management-item:hover {
+    background: var(--bg-secondary);
+}
+
+.student-management-item:last-child {
+    border-bottom: none;
+}
+
+.student-management-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.student-management-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.student-management-details {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.student-management-detail {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.detail-label {
+    font-weight: 500;
+}
+
+.student-management-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.action-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.action-btn.delete {
+    background: var(--error-color);
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}
+
+.action-btn.view {
+    background: var(--info-color);
+    color: white;
+}
+
+.action-btn.view:hover {
+    background: #0e7490;
+    transform: translateY(-1px);
+}
+
+.cpf-input {
+    position: relative;
+}
+
+.cpf-input input {
+    padding-right: 40px;
+}
+
+.cpf-format-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    padding: 4px;
+}
+
+.cpf-format-btn:hover {
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .capacity-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .student-management-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+    }
+    
+    .student-management-details {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .student-management-actions {
+        justify-content: center;
+    }
+    
+    .capacity-warning {
+        text-align: center;
+    }
+}
+</style>

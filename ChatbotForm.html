@@ -1,0 +1,99 @@
+<div class="form-container">
+    <h3 class="section-title">Chatbot SIG-TE</h3>
+    <p class="form-help">Pergunte sobre os dados da planilha (ex: "total de alunos", "rotas disponíveis").</p>
+
+    <div id="chat-window" style="height: 300px; overflow-y: auto; border: 1px solid var(--secondary-300); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-4); background: var(--secondary-50);">
+        <div class="chat-message bot-message">
+            Olá! Sou o Chatbot do SIG-TE. Como posso ajudar com os dados da planilha?
+        </div>
+    </div>
+
+    <div class="form-group" style="display: flex; gap: var(--space-2);">
+        <input type="text" id="chatbot-input" class="form-input" placeholder="Digite sua pergunta..." style="flex-grow: 1;">
+        <button id="chatbot-send-btn" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Enviar
+        </button>
+    </div>
+</div>
+
+<style>
+    .chat-message {
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-2);
+        max-width: 80%;
+    }
+    .user-message {
+        background: var(--primary-100);
+        color: var(--primary-900);
+        margin-left: auto;
+        text-align: right;
+    }
+    .bot-message {
+        background: var(--secondary-200);
+        color: var(--secondary-900);
+        margin-right: auto;
+        text-align: left;
+    }
+    [data-theme="dark"] .user-message {
+        background: var(--primary-800);
+        color: var(--primary-100);
+    }
+    [data-theme="dark"] .bot-message {
+        background: var(--secondary-700);
+        color: var(--secondary-100);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatWindow = document.getElementById('chat-window');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSendBtn = document.getElementById('chatbot-send-btn');
+
+        const appendMessage = (sender, message) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to bottom
+        };
+
+        const sendMessage = async () => {
+            const query = chatbotInput.value.trim();
+            if (!query) return;
+
+            appendMessage('user', query);
+            chatbotInput.value = '';
+            App.UI.showLoading(true, 'Processando sua pergunta...');
+
+            try {
+                const response = await new Promise((resolve, reject) => {
+                    google.script.run
+                        .withSuccessHandler(resolve)
+                        .withFailureHandler(reject)
+                        .processChatbotQuery(query); // Function to be exposed in Code.gs
+                });
+
+                if (response && response.success) {
+                    appendMessage('bot', response.response);
+                } else {
+                    throw new Error(response?.response || 'Erro desconhecido ao processar a pergunta.');
+                }
+            } catch (error) {
+                console.error('Erro no chatbot:', error);
+                appendMessage('bot', 'Desculpe, houve um erro ao processar sua pergunta. Tente novamente mais tarde.');
+                App.UI.showToast('Erro no chatbot: ' + error.message, 'error');
+            } finally {
+                App.UI.showLoading(false);
+            }
+        };
+
+        chatbotSendBtn.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    });
+</script>

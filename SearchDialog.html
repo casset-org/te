@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Localizar Conteúdo - SIG-TE</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- React and ReactDOM CDNs -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX transformation in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; padding: 1.5rem; }
+    .highlight { background-color: #fcd34d; font-weight: 600; border-radius: 0.25rem; padding: 0 0.25rem; }
+    *:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+    .search-header { background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%); color: white; border-radius: 0.5rem; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // Corrigido: use lucide.icons
+    const Icon = ({ name, size = 20, className = "" }) => {
+        const svg = lucide.icons[name]?.toSvg({ width: size, height: size, class: className });
+        if (!svg) return null;
+        return <span dangerouslySetInnerHTML={{ __html: svg }} style={{ width: size, height: size }} className={`inline-block ${className}`} />;
+    };
+
+    const useDebounce = (value, delay) => {
+      const [debouncedValue, setDebouncedValue] = useState(value);
+      useEffect(() => {
+        const handler = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(handler);
+      }, [value, delay]);
+      return debouncedValue;
+    };
+
+    const SearchDialog = () => {
+      const [searchTerm, setSearchTerm] = useState('');
+      const [caseSensitive, setCaseSensitive] = useState(false);
+      const [wholeWords, setWholeWords] = useState(false);
+      const [isRegex, setIsRegex] = useState(false);
+      const [searchResults, setSearchResults] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
+      const [error, setError] = useState(null);
+      const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+      const performSearch = useCallback(() => {
+        if (searchTerm.length < 2) {
+          setSearchResults([]);
+          setError(null);
+          return;
+        }
+        setIsLoading(true);
+        setError(null);
+        const options = { termo: searchTerm, caseSensitive, wholeWords, isRegex };
+
+        google.script.run
+          .withSuccessHandler((response) => {
+            setIsLoading(false);
+            if (response.success) {
+              setSearchResults(response.data || []);
+              if (!response.data || response.data.length === 0) setError('Nenhum resultado encontrado.');
+            } else {
+              setError(response.message || 'Erro na busca.');
+            }
+          })
+          .withFailureHandler((err) => {
+            setIsLoading(false);
+            setError('Erro de comunicação: ' + err.message);
+          })
+          .performSearch(options);
+      }, [searchTerm, caseSensitive, wholeWords, isRegex]);
+
+      useEffect(() => {
+        if (debouncedSearchTerm) performSearch();
+      }, [debouncedSearchTerm, performSearch]);
+
+      const handleGoToCell = (aba, celula) => {
+        google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          .navegarParaCelula(aba, celula);
+      };
+
+      return (
+        <div className="p-6 bg-gray-50 min-h-screen">
+          <div className="search-header text-center mb-6 flex items-center justify-center gap-2">
+            <Icon name="Search" size={32} className="text-yellow-300" />
+            <h1 className="text-2xl font-bold">Localizar Conteúdo</h1>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+            <input type="search" className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Digite o termo de busca..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-4">
+              <label className="flex items-center"><input type="checkbox" className="mr-2" checked={caseSensitive} onChange={(e) => setCaseSensitive(e.target.checked)} />Diferenciar maiúsculas</label>
+              <label className="flex items-center"><input type="checkbox" className="mr-2" checked={wholeWords} onChange={(e) => setWholeWords(e.target.checked)} />Palavras inteiras</label>
+              <label className="flex items-center"><input type="checkbox" className="mr-2" checked={isRegex} onChange={(e) => setIsRegex(e.target.checked)} />Expressão Regular</label>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Resultados <span className="text-gray-500 text-sm">{searchResults.length}</span></h2>
+            {isLoading && <p>Buscando...</p>}
+            {error && <p className="text-red-600">{error}</p>}
+            {searchResults.length > 0 && (
+              <div className="overflow-x-auto max-h-96">
+                <table className="min-w-full divide-y">
+                  <thead className="bg-gray-50"><tr><th className="px-6 py-3 text-left text-xs font-medium uppercase">Aba</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Célula</th><th className="px-6 py-3 text-left text-xs font-medium uppercase">Conteúdo</th><th></th></tr></thead>
+                  <tbody className="bg-white divide-y">
+                    {searchResults.map((result, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">{result.aba}</td>
+                        <td className="px-6 py-4">{result.celula}</td>
+                        <td className="px-6 py-4" dangerouslySetInnerHTML={{ __html: result.valorHighlighted }}></td>
+                        <td className="px-6 py-4"><button onClick={() => handleGoToCell(result.aba, result.celula)} className="text-blue-600 hover:underline">Ir</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<SearchDialog />);
+  </script>
+</body>
+</html>
